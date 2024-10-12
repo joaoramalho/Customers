@@ -1,4 +1,6 @@
 using Customers.Data;
+using Customers.Data.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,3 +24,28 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.MapGet("/customers", async (IRepositoryFactory repositoryFactory) =>
+{
+    var repository = repositoryFactory.CreateCustomersRepository();
+    return repository.GetAll();
+});
+
+app.MapPost("/customers", async (IRepositoryFactory repositoryFactory, Customer customer) =>
+{
+    var repository = repositoryFactory.CreateCustomersRepository();
+    repository.Add(customer);
+    return Results.Created($"/customers/{customer.Id}", customer);
+});
+
+app.MapPut("customers/{id}", async (IRepositoryFactory repositoryFactory) =>
+{
+    var repository = repositoryFactory.CreateCustomersRepository();
+    var customer = repository.GetById(id);
+    if (customer is null)
+    {
+        return Results.BadRequest("Customer not found");
+    }
+
+    return null;
+});
