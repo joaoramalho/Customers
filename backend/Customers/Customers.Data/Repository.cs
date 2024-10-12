@@ -8,6 +8,11 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T>
         return context.Set<T>().ToList();
     }
 
+    public T? GetById(long id)
+    {
+        return context.Set<T>().Find(id);
+    }
+
     public void Add(T entity)
     {
         context.Set<T>().Add(entity);
@@ -21,5 +26,10 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T>
     public void Delete(T entity)
     {
         context.Set<T>().Remove(entity);
+    }
+
+    public void Save()
+    {
+        context.SaveChanges();
     }
 }

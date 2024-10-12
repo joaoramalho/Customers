@@ -12,6 +12,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
 
 var app = builder.Build();
 
@@ -35,10 +36,12 @@ app.MapPost("/customers", async (IRepositoryFactory repositoryFactory, Customer 
 {
     var repository = repositoryFactory.CreateCustomersRepository();
     repository.Add(customer);
+    repository.Save();
+    
     return Results.Created($"/customers/{customer.Id}", customer);
 });
 
-app.MapPut("customers/{id}", async (IRepositoryFactory repositoryFactory) =>
+app.MapPut("customers/{id}", async (IRepositoryFactory repositoryFactory, long id) =>
 {
     var repository = repositoryFactory.CreateCustomersRepository();
     var customer = repository.GetById(id);
@@ -46,6 +49,24 @@ app.MapPut("customers/{id}", async (IRepositoryFactory repositoryFactory) =>
     {
         return Results.BadRequest("Customer not found");
     }
+    
+    repository.Update(customer);
+    repository.Save();
+    
+    return Results.Ok(customer);
+});
 
-    return null;
+app.MapDelete("/customers/{id}", async (IRepositoryFactory repositoryFactory, long id) =>
+{
+    var repository = repositoryFactory.CreateCustomersRepository();
+    var customer = repository.GetById(id);
+    if (customer is null)
+    {
+        return Results.BadRequest("Customer not found");
+    }
+    
+    repository.Delete(customer);
+    repository.Save();
+    
+    return Results.Ok();
 });
