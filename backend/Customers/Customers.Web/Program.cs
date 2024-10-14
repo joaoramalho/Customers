@@ -70,3 +70,5 @@ app.MapDelete("/customers/{id}", (IRepositoryFactory repositoryFactory, long id)
     
     return Results.Ok();
 });
+
+app.Run();
