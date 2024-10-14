@@ -1,5 +1,6 @@
 using Customers.Data;
 using Customers.Data.Models;
+using Customers.Web.Customers;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IRepositoryFactory, RepositoryFactory>();
+builder.Services.AddScoped<ICustomerMapper, CustomerMapper>();
 
 var app = builder.Build();
 
@@ -32,16 +34,18 @@ app.MapGet("/customers", (IRepositoryFactory repositoryFactory) =>
     return repository.GetAll();
 });
 
-app.MapPost("/customers", (IRepositoryFactory repositoryFactory, Customer customer) =>
+app.MapPost("/customers", (IRepositoryFactory repositoryFactory, ICustomerMapper mapper, CustomersDto customer) =>
 {
     var repository = repositoryFactory.CreateCustomersRepository();
-    repository.Add(customer);
+    var mappedCustomer = mapper.Map(customer);
+    
+    repository.Add(mappedCustomer);
     repository.Save();
     
-    return Results.Created($"/customers/{customer.Id}", customer);
+    return Results.Created($"/customers/{mappedCustomer.Id}", mappedCustomer);
 });
 
-app.MapPut("customers/{id}", (IRepositoryFactory repositoryFactory, long id) =>
+app.MapPut("customers/{id}", (IRepositoryFactory repositoryFactory, ICustomerMapper mapper, long id, CustomersDto dto) =>
 {
     var repository = repositoryFactory.CreateCustomersRepository();
     var customer = repository.GetById(id);
@@ -49,6 +53,14 @@ app.MapPut("customers/{id}", (IRepositoryFactory repositoryFactory, long id) =>
     {
         return Results.BadRequest("Customer not found");
     }
+    
+    var mappedCustomer = mapper.Map(dto);
+    
+    customer.FirstName = mappedCustomer.FirstName;
+    customer.LastName = mappedCustomer.LastName;
+    customer.Email = mappedCustomer.Email;
+    customer.PhoneNumber = mappedCustomer.PhoneNumber;
+    customer.Address = mappedCustomer.Address;
     
     repository.Update(customer);
     repository.Save();
