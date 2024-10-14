@@ -26,13 +26,13 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.MapGet("/customers", async (IRepositoryFactory repositoryFactory) =>
+app.MapGet("/customers", (IRepositoryFactory repositoryFactory) =>
 {
     var repository = repositoryFactory.CreateCustomersRepository();
     return repository.GetAll();
 });
 
-app.MapPost("/customers", async (IRepositoryFactory repositoryFactory, Customer customer) =>
+app.MapPost("/customers", (IRepositoryFactory repositoryFactory, Customer customer) =>
 {
     var repository = repositoryFactory.CreateCustomersRepository();
     repository.Add(customer);
@@ -41,7 +41,7 @@ app.MapPost("/customers", async (IRepositoryFactory repositoryFactory, Customer 
     return Results.Created($"/customers/{customer.Id}", customer);
 });
 
-app.MapPut("customers/{id}", async (IRepositoryFactory repositoryFactory, long id) =>
+app.MapPut("customers/{id}", (IRepositoryFactory repositoryFactory, long id) =>
 {
     var repository = repositoryFactory.CreateCustomersRepository();
     var customer = repository.GetById(id);
@@ -56,7 +56,7 @@ app.MapPut("customers/{id}", async (IRepositoryFactory repositoryFactory, long i
     return Results.Ok(customer);
 });
 
-app.MapDelete("/customers/{id}", async (IRepositoryFactory repositoryFactory, long id) =>
+app.MapDelete("/customers/{id}", (IRepositoryFactory repositoryFactory, long id) =>
 {
     var repository = repositoryFactory.CreateCustomersRepository();
     var customer = repository.GetById(id);
