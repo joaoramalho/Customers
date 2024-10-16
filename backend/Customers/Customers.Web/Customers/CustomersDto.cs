@@ -1,3 +1,3 @@
 namespace Customers.Web.Customers;
 
-public record CustomersDto(string FirstName, string LastName, string Email, string PhoneNumber, string Address);
+public record CustomersDto(long Id, string FirstName, string LastName, string Email, string PhoneNumber, string Address);

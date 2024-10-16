@@ -7,6 +7,7 @@ public class CustomerMapper : ICustomerMapper
     public CustomersDto Map(Customer customer)
     {
         return new CustomersDto(
+            customer.Id,
             customer.FirstName,
             customer.LastName,
             customer.Email,

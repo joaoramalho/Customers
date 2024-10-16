@@ -1,0 +1,6 @@
+{
+    "/customers" : {
+        "target": "http://localhost:5219",
+        "secure": false
+    }
+}
